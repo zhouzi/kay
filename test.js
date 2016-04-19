@@ -14,12 +14,12 @@ describe('kay', function () {
   });
 
   describe('has a required function that', function () {
-    it('return no error if value is truthy', function () {
+    it('return no error if value is not empty', function () {
       assert.deepEqual(kay.required().validate('foo'), []);
       assert.deepEqual(kay.required().validate(['foo']), []);
     });
 
-    it('return an error if value is falsy', function () {
+    it('return an error if value is empty', function () {
       assert.deepEqual(kay.required().validate(''), [{ err: 'required' }]);
       assert.deepEqual(kay.required().validate(null), [{ err: 'required' }]);
     });
@@ -40,13 +40,17 @@ describe('kay', function () {
       assert.deepEqual(kay.minlength(3).validate(['foo', 'bar', 'quz', 'baz']), []);
     });
 
+    it('return no errors if value is empty', function () {
+      assert.deepEqual(kay.minlength(3).validate(''), []);
+    });
+
     it('return an error if value\'s length is lower than the given length', function () {
       assert.deepEqual(kay.minlength(3).validate('fo'), [{ err: 'minlength' }]);
       assert.deepEqual(kay.minlength(3).validate(['foo', 'bar']), [{ err: 'minlength' }]);
     });
 
     it('return an error if value has no length property', function () {
-      assert.deepEqual(kay.minlength(3).validate(null), [{ err: 'minlength' }]);
+      assert.deepEqual(kay.minlength(3).validate({}), [{ err: 'minlength' }]);
     });
   });
 
@@ -61,13 +65,17 @@ describe('kay', function () {
       assert.deepEqual(kay.maxlength(3).validate(['foo', 'bar']), []);
     });
 
+    it('return no errors if value is empty', function () {
+      assert.deepEqual(kay.maxlength(3).validate(null), []);
+    });
+
     it('return an error if value\'s length exceeds the maximum', function () {
       assert.deepEqual(kay.maxlength(3).validate('fooo'), [{ err: 'maxlength' }]);
       assert.deepEqual(kay.maxlength(3).validate(['foo', 'bar', 'quz', 'baz']), [{ err: 'maxlength' }]);
     });
 
     it('return an error if value has no length property', function () {
-      assert.deepEqual(kay.maxlength(3).validate(null), [{ err: 'maxlength' }]);
+      assert.deepEqual(kay.maxlength(3).validate({}), [{ err: 'maxlength' }]);
     });
   });
 
@@ -80,12 +88,16 @@ describe('kay', function () {
       assert.deepEqual(kay.min(3).validate(6), []);
     });
 
+    it('return no errors if value is empty', function () {
+      assert.deepEqual(kay.min(3).validate(null), []);
+    });
+
     it('return an error when value is greater than the minimum', function () {
       assert.deepEqual(kay.min(3).validate(2), [{ err: 'min' }]);
     });
 
     it('return an error when value is not a number', function () {
-      assert.deepEqual(kay.min(3).validate(null), [{ err: 'min' }]);
+      assert.deepEqual(kay.min(3).validate({}), [{ err: 'min' }]);
     });
   });
 
@@ -98,18 +110,26 @@ describe('kay', function () {
       assert.deepEqual(kay.max(3).validate(2), []);
     });
 
+    it('return no errors if value is empty', function () {
+      assert.deepEqual(kay.max(3).validate(null), []);
+    });
+
     it('return an error when value is greater than maximum', function () {
       assert.deepEqual(kay.max(3).validate(4), [{ err: 'max' }]);
     });
 
     it('return an error when value is not a number', function () {
-      assert.deepEqual(kay.max(3).validate(null), [{ err: 'max' }]);
+      assert.deepEqual(kay.max(3).validate({}), [{ err: 'max' }]);
     });
   });
 
   describe('has a pattern function that', function () {
     it('return no errors if value matches pattern', function () {
       assert.deepEqual(kay.pattern(/123/).validate('123'), []);
+    });
+
+    it('return no errors if value is empty', function () {
+      assert.deepEqual(kay.pattern(/123/).validate(null), []);
     });
 
     it('return an error if value matches pattern', function () {

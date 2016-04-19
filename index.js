@@ -1,10 +1,5 @@
 var assign = require('object-assign');
 
-function chain (obj, validator) {
-  var validators = obj.validators || [];
-  return assign({}, obj, { validators: validators.concat(validator) });
-}
-
 function type (obj) {
   return Object.prototype.toString.call(obj);
 }
@@ -15,96 +10,96 @@ function Err (name) {
   };
 }
 
-function string () {
-  return chain(this, function string(value) {
-    return type(value) === '[object String]';
-  });
+function string (value) {
+  return type(value) === '[object String]';
 }
 
-function number () {
-  return chain(this, function number(value) {
-    return type(value) === '[object Number]';
-  });
+function number (value) {
+  return type(value) === '[object Number]';
 }
 
-function func () {
-  return chain(this, function func(value) {
-    return type(value) === '[object Function]';
-  });
+function func (value) {
+  return type(value) === '[object Function]';
 }
 
-function object () {
-  return chain(this, function object(value) {
-    return type(value) === '[object Object]';
-  });
+function object (value) {
+  return type(value) === '[object Object]';
 }
 
-function array () {
-  return chain(this, function array(value) {
-    return type(value) === '[object Array]';
-  });
+function array (value) {
+  return type(value) === '[object Array]';
 }
 
-function bool () {
-  return chain(this, function bool(value) {
-    return type(value) === '[object Bool]';
-  });
+function bool (value) {
+  return type(value) === '[object Bool]';
 }
 
-function required () {
-  return chain(this, function required(value) {
-    return Boolean(value) && (value.length == null || value.length > 0);
-  });
+function required (value) {
+  if (value == null) {
+    return false;
+  }
+
+  if (typeof value.length == 'number' && value.length == 0) {
+    return false;
+  }
+
+  return true;
 }
 
-function minlength (minimum) {
-  return chain(this, function minlength(value) {
-    if (value == null || value.length == null) {
-      return false;
-    }
+function minlength (value, minimum) {
+  if (required(value) == false) {
+    return true;
+  }
 
-    return value.length >= minimum;
-  });
+  if (number(value.length) == false) {
+    return false;
+  }
+
+  return value.length >= minimum;
 }
 
-function maxlength (maximum) {
-  return chain(this, function maxlength(value) {
-    if (value == null || value.length == null) {
-      return false;
-    }
+function maxlength (value, maximum) {
+  if (required(value) == false) {
+    return true;
+  }
 
-    return value.length <= maximum;
-  });
+  if (number(value.length) == false) {
+    return false;
+  }
+
+  return value.length <= maximum;
 }
 
-function min (minimum) {
-  return chain(this, function min(value) {
-    if (typeof value != 'number') {
-      return false;
-    }
+function min (value, minimum) {
+  if (required(value) == false) {
+    return true;
+  }
 
-    return value >= minimum;
-  });
+  if (number(value) == false) {
+    return false;
+  }
+
+  return value >= minimum;
 }
 
-function max (maximum) {
-  return chain(this, function max(value) {
-    if (typeof value != 'number') {
-      return false;
-    }
+function max (value, maximum) {
+  if (required(value) == false) {
+    return true;
+  }
 
-    return value <= maximum;
-  });
+  if (number(value) == false) {
+    return false;
+  }
+
+  return value <= maximum;
 }
 
-function pattern (regex) {
-  return chain(this, function pattern(value) {
-    if (value == null) {
-      return false;
-    }
+function pattern (value, regex) {
+  if (required(value) == false) {
+    return true;
+  }
 
-    return regex.test(value);
-  });
+  return regex.test(value);
 }
 
 function validate (value, callback) {
@@ -112,8 +107,17 @@ function validate (value, callback) {
 
   var errors =
     validators
-      .map(function (validator) { return validator(value) ? null : Err(validator.name)})
-      .filter(function (err) { return err; });
+      .map(function (validator) {
+        var args = [value].concat(validator.args);
+        if (validator.fn.apply(null, args)) {
+          return null;
+        }
+
+        return Err(validator.name);
+      })
+      .filter(function (err) {
+        return err;
+      });
 
   if (callback == null) {
     return errors;
@@ -130,19 +134,34 @@ function messages (msgs) {
   };
 }
 
+function chain (validator) {
+  return function () {
+    var validators =
+      (this.validators || [])
+        .concat({
+          name: validator.name,
+          fn: validator,
+          args: Array.prototype.slice.call(arguments)
+        });
+
+    return assign({}, this, { validators: validators });
+  };
+}
+
 module.exports = {
+  validate: validate,
   messages: messages,
-  string: string,
-  number: number,
-  func: func,
-  object: object,
-  bool: bool,
-  array: array,
-  required: required,
-  minlength: minlength,
-  maxlength: maxlength,
-  min: min,
-  max: max,
-  pattern: pattern,
-  validate: validate
+
+  string: chain(string),
+  number: chain(number),
+  func: chain(func),
+  object: chain(object),
+  bool: chain(bool),
+  array: chain(array),
+  required: chain(required),
+  minlength: chain(minlength),
+  maxlength: chain(maxlength),
+  min: chain(min),
+  max: chain(max),
+  pattern: chain(pattern)
 };
