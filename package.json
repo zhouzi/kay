@@ -1,0 +1,22 @@
+{
+  "name": "kay",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "package.json"
+  ],
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "author": "Gabin Aureche <hello@gabinaureche.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "2.4.5",
+    "sinon": "1.17.3"
+  },
+  "dependencies": {
+    "object-assign": "4.0.1"
+  }
+}
