@@ -3,13 +3,13 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var kay = require('./index');
-var api = Object.keys(kay).filter(function (key) { return key !== 'validate'; });
+var api = Object.keys(kay).filter(function (key) { return key !== 'validate' && key !== 'messages'; });
 
 describe('kay', function () {
   it('has functions that return the api', function () {
     api
       .forEach(function (key) {
-        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat('validate', 'validators').sort());
+        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat('validate', 'validators', 'messages').sort());
       });
   });
 
@@ -131,6 +131,22 @@ describe('kay', function () {
 
     it('returns a list of errors when not given a callback', function () {
       assert.deepEqual(kay.string().required().minlength(4).validate(1), errors);
+    });
+  });
+
+  describe('has a messages function that', function () {
+    it('return a function that consumes errors', function () {
+      var requiredMessage = 'This field is required';
+      assert.deepEqual(kay.required().validate(null, kay.messages({ required: requiredMessage })), [requiredMessage]);
+    });
+
+    it('return a function that supports callbacks', function () {
+      var returnValue = 'That\'s a required field!';
+      var stub = sinon.stub().returns(returnValue);
+
+      assert.deepEqual(kay.required().validate(null, kay.messages({ required: stub })), [returnValue]);
+      assert.equal(stub.callCount, 1);
+      assert.deepEqual(stub.lastCall.args, [{ err: 'required' }]);
     });
   });
 });

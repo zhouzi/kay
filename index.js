@@ -122,7 +122,16 @@ function validate (value, callback) {
   return callback(errors);
 }
 
+function messages (msgs) {
+  return function (errs) {
+    return errs
+      .filter(function (err) { return msgs.hasOwnProperty(err.err); })
+      .map(function (err) { return typeof msgs[err.err] == 'function' ? msgs[err.err](err) : msgs[err.err]; });
+  };
+}
+
 module.exports = {
+  messages: messages,
   string: string,
   number: number,
   func: func,
