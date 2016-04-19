@@ -121,9 +121,10 @@ describe('kay', function () {
     var errors = [{ err: 'string' }, { err: 'minlength' }];
 
     it('calls it with the list of errors when given a callback', function () {
-      var stub = sinon.stub();
-      kay.string().required().minlength(4).validate(1, stub);
+      var returnValue = 'hey there!';
+      var stub = sinon.stub().returns(returnValue);
 
+      assert.equal(kay.string().required().minlength(4).validate(1, stub), returnValue);
       assert.equal(stub.callCount, 1);
       assert.deepEqual(stub.lastCall.args, [errors]);
     });
