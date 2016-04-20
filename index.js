@@ -11,26 +11,50 @@ function Err (name) {
 }
 
 function string (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object String]';
 }
 
 function number (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object Number]';
 }
 
 function func (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object Function]';
 }
 
 function object (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object Object]';
 }
 
 function array (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object Array]';
 }
 
 function bool (value) {
+  if (required(value) == false) {
+    return true;
+  }
+
   return type(value) === '[object Bool]';
 }
 

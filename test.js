@@ -13,6 +13,66 @@ describe('kay', function () {
       });
   });
 
+  describe('has a string function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.string().validate(null), []);
+    });
+
+    it('return an error if value is not a string', function () {
+      assert.deepEqual(kay.string().validate(123), [{ err: 'string' }]);
+    });
+  });
+
+  describe('has a number function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.number().validate(null), []);
+    });
+
+    it('return an error if value is not a number', function () {
+      assert.deepEqual(kay.number().validate('abc'), [{ err: 'number' }]);
+    });
+  });
+
+  describe('has a func function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.func().validate(null), []);
+    });
+
+    it('return an error if value is not a func', function () {
+      assert.deepEqual(kay.func().validate('abc'), [{ err: 'func' }]);
+    });
+  });
+
+  describe('has a object function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.object().validate(null), []);
+    });
+
+    it('return an error if value is not a object', function () {
+      assert.deepEqual(kay.object().validate(['foo']), [{ err: 'object' }]);
+    });
+  });
+
+  describe('has a array function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.array().validate(null), []);
+    });
+
+    it('return an error if value is not a array', function () {
+      assert.deepEqual(kay.array().validate({}), [{ err: 'array' }]);
+    });
+  });
+
+  describe('has a bool function that', function () {
+    it('return no error if value is empty', function () {
+      assert.deepEqual(kay.bool().validate(null), []);
+    });
+
+    it('return an error if value is not a bool', function () {
+      assert.deepEqual(kay.bool().validate('abc'), [{ err: 'bool' }]);
+    });
+  });
+
   describe('has a required function that', function () {
     it('return no error if value is not empty', function () {
       assert.deepEqual(kay.required().validate('foo'), []);
