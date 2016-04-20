@@ -172,9 +172,30 @@ function chain (validator) {
   };
 }
 
+function schema (obj) {
+  function validate (value) {
+    var result = {};
+
+    for (var prop in obj) {
+      if (!obj.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      result[prop] = obj[prop].validate(value[prop]);
+    }
+
+    return result
+  }
+
+  return {
+    validate: validate
+  };
+}
+
 module.exports = {
   validate: validate,
   messages: messages,
+  schema: schema,
 
   string: chain(string),
   number: chain(number),

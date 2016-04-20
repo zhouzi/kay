@@ -3,13 +3,13 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var kay = require('./index');
-var api = Object.keys(kay).filter(function (key) { return key !== 'validate' && key !== 'messages'; });
+var api = Object.keys(kay).filter(function (key) { return key !== 'validate' && key !== 'messages' && key !== 'schema'; });
 
 describe('kay', function () {
   it('has functions that return the api', function () {
     api
       .forEach(function (key) {
-        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat('validate', 'validators', 'messages').sort());
+        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat('validate', 'validators', 'messages', 'schema').sort());
       });
   });
 
@@ -227,6 +227,32 @@ describe('kay', function () {
       assert.deepEqual(kay.required().validate(null, kay.messages({ required: stub })), [returnValue]);
       assert.equal(stub.callCount, 1);
       assert.deepEqual(stub.lastCall.args, [{ err: 'required' }]);
+    });
+  });
+
+  describe('has a schema function that', function () {
+    it('should return the schema api', function () {
+      assert.deepEqual(Object.keys(kay.schema()), ['validate']);
+    });
+
+    describe('return a validate function that', function () {
+      it('should return an object containing the errors', function () {
+        var schema = kay.schema({
+          name: kay.string().required(),
+          age: kay.number()
+        });
+
+        assert.deepEqual(schema.validate({ age: 'abc' }), { name: [{ err: 'required' }], age: [{ err: 'number' }]});
+      });
+
+      it('should ignore non-described properties', function () {
+        var schema = kay.schema({
+          name: kay.string().required(),
+          age: kay.number()
+        });
+
+        assert.deepEqual(schema.validate({ name: 'John', age: 25, phone: '01234' }), { name: [], age: [] });
+      });
     });
   });
 });
