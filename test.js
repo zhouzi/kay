@@ -1,15 +1,16 @@
-/* global describe, it, context */
+/* global describe, it, context, beforeEach */
 
 var assert = require('assert');
 var sinon = require('sinon');
 var kay = require('./index');
-var api = Object.keys(kay).filter(function (key) { return key !== 'validate' && key !== 'messages' && key !== 'schema'; });
+var notReturningApiProps = ['defaultValue', 'validators', 'validate', 'messages', 'schema'];
+var api = Object.keys(kay).filter(function (key) { return notReturningApiProps.indexOf(key) === -1; });
 
 describe('kay', function () {
   it('has functions that return the api', function () {
     api
       .forEach(function (key) {
-        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat('validate', 'validators', 'messages', 'schema').sort());
+        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat(notReturningApiProps).sort());
       });
   });
 
@@ -232,7 +233,7 @@ describe('kay', function () {
 
   describe('has a schema function that', function () {
     it('should return the schema api', function () {
-      assert.deepEqual(Object.keys(kay.schema()), ['validate']);
+      assert.deepEqual(Object.keys(kay.schema()), ['validate', 'values']);
     });
 
     describe('return a validate function that', function () {
@@ -252,6 +253,40 @@ describe('kay', function () {
         });
 
         assert.deepEqual(schema.validate({ name: 'John', age: 25, phone: '01234' }), { name: [], age: [] });
+      });
+    });
+
+    describe('return a values function that', function () {
+      var schema;
+
+      beforeEach(function () {
+        schema = kay.schema({ firstname: kay.string().defaultValue('John'), age: kay.number().defaultValue(22) });
+      });
+
+      it('should return the default values', function () {
+        assert.deepEqual(schema.values(), { firstname: 'John', age: 22 });
+      });
+
+      it('should return the provided values when available', function () {
+        assert.deepEqual(schema.values({ firstname: 'Jane' }), { firstname: 'Jane', age: 22 });
+      });
+
+      it('should not return the key that have no default value', function () {
+        schema = kay.schema({ firstname: kay.string().defaultValue('John'), age: kay.number() });
+        assert.deepEqual(schema.values(), { firstname: 'John' });
+      });
+
+      it('should ignore non-described properties', function () {
+        assert.deepEqual(schema.values({ firstname: 'Jane', phone: '01234' }), { firstname: 'Jane', age: 22 });
+      });
+
+      it('should return default value for invalid props', function () {
+        assert.deepEqual(schema.values({ firstname: ['Jane'] }), { firstname: 'John', age: 22 });
+      });
+
+      it('should not return value for invalid props that have no default value', function () {
+        schema = kay.schema({ firstname: kay.string().defaultValue('John'), age: kay.number() });
+        assert.deepEqual(schema.values({ age: 'abc' }), { firstname: 'John' });
       });
     });
   });

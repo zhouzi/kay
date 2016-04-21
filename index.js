@@ -158,6 +158,10 @@ function messages (msgs) {
   };
 }
 
+function defaultValue (value) {
+  return assign({}, this, { $default: value });
+}
+
 function chain (validator) {
   return function () {
     var validators =
@@ -187,8 +191,33 @@ function schema (obj) {
     return result
   }
 
+  function values (value) {
+    if (value == null) {
+      value = {};
+    }
+
+    var result = {};
+    for (var prop in obj) {
+      if (!obj.hasOwnProperty(prop)) {
+        continue;
+      }
+
+      var isValid = obj[prop].validate(value[prop]).length == 0;
+      var isEmpty = required(value[prop]) == false;
+
+      if (isValid && !isEmpty) {
+        result[prop] = value[prop];
+      } else if (obj[prop].hasOwnProperty('$default')) {
+        result[prop] = obj[prop].$default;
+      }
+    }
+
+    return result;
+  }
+
   return {
-    validate: validate
+    validate: validate,
+    values: values
   };
 }
 
@@ -196,6 +225,7 @@ module.exports = {
   validate: validate,
   messages: messages,
   schema: schema,
+  defaultValue: defaultValue,
 
   string: chain(string),
   number: chain(number),
