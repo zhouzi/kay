@@ -191,7 +191,12 @@ function schema (obj) {
     return result
   }
 
-  function values (value) {
+  function values (value, callback) {
+    if (type(value) == '[object Function]') {
+      callback = value;
+      value = null;
+    }
+
     if (value == null) {
       value = {};
     }
@@ -212,7 +217,11 @@ function schema (obj) {
       }
     }
 
-    return result;
+    if (callback == null) {
+      return result;
+    }
+
+    return callback(this.validate(value), result);
   }
 
   return {

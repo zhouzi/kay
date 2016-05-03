@@ -288,6 +288,25 @@ describe('kay', function () {
         schema = kay.schema({ firstname: kay.string().defaultValue('John'), age: kay.number() });
         assert.deepEqual(schema.values({ age: 'abc' }), { firstname: 'John' });
       });
+
+      it('should call a callback with the errors and result', function () {
+        var stub = sinon.stub();
+        schema = kay.schema({ firstname: kay.string().defaultValue('John'), age: kay.number().required() });
+        schema.values({}, stub);
+
+        assert.equal(stub.callCount, 1);
+        assert.deepEqual(stub.lastCall.args, [
+          {
+            firstname: [],
+            age: [
+              { err: 'required' }
+            ]
+          },
+          {
+            firstname: 'John'
+          }
+        ]);
+      });
     });
   });
 });
