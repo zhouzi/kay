@@ -4,12 +4,6 @@ function type (obj) {
   return Object.prototype.toString.call(obj);
 }
 
-function Err (name) {
-  return {
-    err: name
-  };
-}
-
 function string (value) {
   if (required(value) == false) {
     return true;
@@ -131,17 +125,17 @@ function validate (value, callback) {
 
   var errors =
     validators
-      .map(function (validator) {
+      .reduce(function (result, validator) {
         var args = [value].concat(validator.args);
-        if (validator.fn.apply(null, args)) {
-          return null;
+        var isValid = validator.fn.apply(null, args);
+
+        if (isValid) {
+          return result;
         }
 
-        return Err(validator.name);
-      })
-      .filter(function (err) {
-        return err;
-      });
+        result[validator.name] = true;
+        return result;
+      }, {});
 
   if (callback == null) {
     return errors;
@@ -151,10 +145,28 @@ function validate (value, callback) {
 }
 
 function messages (msgs) {
-  return function (errs) {
-    return errs
-      .filter(function (err) { return msgs.hasOwnProperty(err.err); })
-      .map(function (err) { return typeof msgs[err.err] == 'function' ? msgs[err.err](err) : msgs[err.err]; });
+  return function (errors) {
+    var result = [];
+
+    for (var error in errors) {
+      if (!errors.hasOwnProperty(error)) {
+        continue;
+      }
+
+      if (!msgs.hasOwnProperty(error)) {
+        continue;
+      }
+
+      if (errors[error] === true) {
+        result.push(
+          typeof msgs[error] == 'function'
+            ? msgs[error]()
+            : msgs[error]
+        );
+      }
+    }
+
+    return result;
   };
 }
 
@@ -207,7 +219,8 @@ function schema (obj) {
         continue;
       }
 
-      var isValid = obj[prop].validate(value[prop]).length == 0;
+      var errors = obj[prop].validate(value[prop]);
+      var isValid = Object.keys(errors).length == 0;
       var isEmpty = required(value[prop]) == false;
 
       if (isValid && !isEmpty) {
