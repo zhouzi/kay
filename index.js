@@ -144,32 +144,6 @@ function validate (value, callback) {
   return callback(errors);
 }
 
-function messages (msgs) {
-  return function (errors) {
-    var result = [];
-
-    for (var error in errors) {
-      if (!errors.hasOwnProperty(error)) {
-        continue;
-      }
-
-      if (!msgs.hasOwnProperty(error)) {
-        continue;
-      }
-
-      if (errors[error] === true) {
-        result.push(
-          typeof msgs[error] == 'function'
-            ? msgs[error]()
-            : msgs[error]
-        );
-      }
-    }
-
-    return result;
-  };
-}
-
 function defaultValue (value) {
   return assign({}, this, { $default: value });
 }
@@ -245,7 +219,6 @@ function schema (obj) {
 
 module.exports = {
   validate: validate,
-  messages: messages,
   schema: schema,
   defaultValue: defaultValue,
 
