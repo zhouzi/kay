@@ -234,7 +234,7 @@ function schema (obj) {
       return result;
     }
 
-    return callback(this.validate(value), result);
+    return callback(validate(value), result);
   }
 
   return {
