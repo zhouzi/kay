@@ -20,7 +20,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a string', function () {
-      assert.deepEqual(kay.string().validate(123), { string: true });
+      assert.deepEqual(kay.string().validate(123), { $invalid: true, string: true });
     });
   });
 
@@ -30,7 +30,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a number', function () {
-      assert.deepEqual(kay.number().validate('abc'), { number: true });
+      assert.deepEqual(kay.number().validate('abc'), { $invalid: true, number: true });
     });
   });
 
@@ -40,7 +40,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a func', function () {
-      assert.deepEqual(kay.func().validate('abc'), { func: true });
+      assert.deepEqual(kay.func().validate('abc'), { $invalid: true, func: true });
     });
   });
 
@@ -50,7 +50,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a object', function () {
-      assert.deepEqual(kay.object().validate(['foo']), { object: true });
+      assert.deepEqual(kay.object().validate(['foo']), { $invalid: true, object: true });
     });
   });
 
@@ -60,7 +60,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a array', function () {
-      assert.deepEqual(kay.array().validate({}), { array: true });
+      assert.deepEqual(kay.array().validate({}), { $invalid: true, array: true });
     });
   });
 
@@ -70,7 +70,7 @@ describe('kay', function () {
     });
 
     it('return an error if value is not a bool', function () {
-      assert.deepEqual(kay.bool().validate('abc'), { bool: true });
+      assert.deepEqual(kay.bool().validate('abc'), { $invalid: true, bool: true });
     });
   });
 
@@ -81,12 +81,12 @@ describe('kay', function () {
     });
 
     it('return an error if value is empty', function () {
-      assert.deepEqual(kay.required().validate(''), { required: true });
-      assert.deepEqual(kay.required().validate(null), { required: true });
+      assert.deepEqual(kay.required().validate(''), { $invalid: true, required: true });
+      assert.deepEqual(kay.required().validate(null), { $invalid: true, required: true });
     });
 
     it('return an error if value has a length equal to 0', function () {
-      assert.deepEqual(kay.required().validate([]), { required: true });
+      assert.deepEqual(kay.required().validate([]), { $invalid: true, required: true });
     });
   });
 
@@ -106,12 +106,12 @@ describe('kay', function () {
     });
 
     it('return an error if value\'s length is lower than the given length', function () {
-      assert.deepEqual(kay.minlength(3).validate('fo'), { minlength: true });
-      assert.deepEqual(kay.minlength(3).validate(['foo', 'bar']), { minlength: true });
+      assert.deepEqual(kay.minlength(3).validate('fo'), { $invalid: true, minlength: true });
+      assert.deepEqual(kay.minlength(3).validate(['foo', 'bar']), { $invalid: true, minlength: true });
     });
 
     it('return an error if value has no length property', function () {
-      assert.deepEqual(kay.minlength(3).validate({}), { minlength: true });
+      assert.deepEqual(kay.minlength(3).validate({}), { $invalid: true, minlength: true });
     });
   });
 
@@ -131,12 +131,12 @@ describe('kay', function () {
     });
 
     it('return an error if value\'s length exceeds the maximum', function () {
-      assert.deepEqual(kay.maxlength(3).validate('fooo'), { maxlength: true });
-      assert.deepEqual(kay.maxlength(3).validate(['foo', 'bar', 'quz', 'baz']), { maxlength: true });
+      assert.deepEqual(kay.maxlength(3).validate('fooo'), { $invalid: true, maxlength: true });
+      assert.deepEqual(kay.maxlength(3).validate(['foo', 'bar', 'quz', 'baz']), { $invalid: true, maxlength: true });
     });
 
     it('return an error if value has no length property', function () {
-      assert.deepEqual(kay.maxlength(3).validate({}), { maxlength: true });
+      assert.deepEqual(kay.maxlength(3).validate({}), { $invalid: true, maxlength: true });
     });
   });
 
@@ -154,11 +154,11 @@ describe('kay', function () {
     });
 
     it('return an error when value is greater than the minimum', function () {
-      assert.deepEqual(kay.min(3).validate(2), { min: true });
+      assert.deepEqual(kay.min(3).validate(2), { $invalid: true, min: true });
     });
 
     it('return an error when value is not a number', function () {
-      assert.deepEqual(kay.min(3).validate({}), { min: true });
+      assert.deepEqual(kay.min(3).validate({}), { $invalid: true, min: true });
     });
   });
 
@@ -176,11 +176,11 @@ describe('kay', function () {
     });
 
     it('return an error when value is greater than maximum', function () {
-      assert.deepEqual(kay.max(3).validate(4), { max: true });
+      assert.deepEqual(kay.max(3).validate(4), { $invalid: true, max: true });
     });
 
     it('return an error when value is not a number', function () {
-      assert.deepEqual(kay.max(3).validate({}), { max: true });
+      assert.deepEqual(kay.max(3).validate({}), { $invalid: true, max: true });
     });
   });
 
@@ -194,24 +194,30 @@ describe('kay', function () {
     });
 
     it('return an error if value matches pattern', function () {
-      assert.deepEqual(kay.pattern(/123/).validate('abc'), { pattern: true });
+      assert.deepEqual(kay.pattern(/123/).validate('abc'), { $invalid: true, pattern: true });
     });
   });
 
   describe('has a validate function that', function () {
-    var errors = { string: true, minlength: true };
-
     it('calls it with the list of errors when given a callback', function () {
       var returnValue = 'hey there!';
       var stub = sinon.stub().returns(returnValue);
 
       assert.equal(kay.string().required().minlength(4).validate(1, stub), returnValue);
       assert.equal(stub.callCount, 1);
-      assert.deepEqual(stub.lastCall.args, [errors]);
+      assert.deepEqual(stub.lastCall.args, [{ $invalid: true, string: true, minlength: true }]);
+    });
+
+    it('returns a map with an $invalid prop set to true when the validation fails', function () {
+      assert.deepEqual(kay.required().validate(null), { $invalid: true, required: true });
     });
 
     it('returns a list of errors when not given a callback', function () {
-      assert.deepEqual(kay.string().required().minlength(4).validate(1), errors);
+      assert.deepEqual(kay.string().required().minlength(4).validate(1), {
+        $invalid: true,
+        string: true,
+        minlength: true
+      });
     });
   });
 
@@ -221,13 +227,37 @@ describe('kay', function () {
     });
 
     describe('return a validate function that', function () {
+      it('should return an object with a top level $invalid prop if the validation fails', function () {
+        var schema = kay.schema({
+          name: kay.required()
+        });
+
+        assert.deepEqual(schema.validate({}), {
+          $invalid: true,
+          name: {
+            $invalid: true,
+            required: true
+          }
+        });
+      });
+
       it('should return an object containing the errors', function () {
         var schema = kay.schema({
           name: kay.string().required(),
           age: kay.number()
         });
 
-        assert.deepEqual(schema.validate({ age: 'abc' }), { name: { required: true }, age: { number: true } });
+        assert.deepEqual(schema.validate({ age: 'abc' }), {
+          $invalid: true,
+          name: {
+            $invalid: true,
+            required: true
+          },
+          age: {
+            $invalid: true,
+            number: true
+          }
+        });
       });
 
       it('should ignore non-described properties', function () {
@@ -281,8 +311,10 @@ describe('kay', function () {
         assert.equal(stub.callCount, 1);
         assert.deepEqual(stub.lastCall.args, [
           {
+            $invalid: true,
             firstname: {},
             age: {
+              $invalid: true,
               required: true
             }
           },

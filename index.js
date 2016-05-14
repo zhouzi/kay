@@ -133,6 +133,7 @@ function validate (value, callback) {
           return result;
         }
 
+        result.$invalid = true;
         result[validator.name] = true;
         return result;
       }, {});
@@ -172,6 +173,10 @@ function schema (obj) {
       }
 
       result[prop] = obj[prop].validate(value[prop]);
+
+      if (result[prop].$invalid) {
+        result.$invalid = true;
+      }
     }
 
     return result
