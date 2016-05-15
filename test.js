@@ -3,16 +3,23 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var kay = require('./index');
-var notReturningApiProps = ['defaultValue', 'validators', 'validate', 'schema'];
-var api = Object.keys(kay).filter(function (key) { return notReturningApiProps.indexOf(key) === -1; });
 
 describe('kay', function () {
-  it('has functions that return the api', function () {
-    api
+  (function () {
+    var api = Object.keys(kay).concat('validators').sort();
+    var propsNotReturningApi = ['defaultValue', 'schema', 'validate', 'validators'];
+    var funcsReturningApi = api.filter(function (key) {
+      return propsNotReturningApi.indexOf(key) == -1;
+    });
+
+    funcsReturningApi
       .forEach(function (key) {
-        assert.deepEqual(Object.keys(kay[key]()).sort(), api.concat(notReturningApiProps).sort());
+        it('has a ' + key + ' function that returns the api', function () {
+          var returnedProps = Object.keys(kay[key]()).sort();
+          assert.deepEqual(returnedProps.sort(), api.sort());
+        });
       });
-  });
+  })();
 
   describe('has a string function that', function () {
     it('return no error if value is empty', function () {
