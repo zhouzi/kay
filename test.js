@@ -7,7 +7,7 @@ var kay = require('./index');
 describe('kay', function () {
   (function () {
     var api = Object.keys(kay).concat('validators').sort();
-    var propsNotReturningApi = ['defaultValue', 'schema', 'validate', 'validators'];
+    var propsNotReturningApi = ['defaultValue', 'message', 'schema', 'validate', 'validators'];
     var funcsReturningApi = api.filter(function (key) {
       return propsNotReturningApi.indexOf(key) == -1;
     });
@@ -205,7 +205,28 @@ describe('kay', function () {
     });
   });
 
+  describe('has a message function that', function () {
+    it('should throw if called directly', function () {
+      assert.throws(function () {
+        kay.message('foo');
+      });
+    });
+
+    it('is used in lieue of true for errors', function () {
+      assert.deepEqual(kay.required().message('This field is required').validate(null), {
+        $invalid: true,
+        required: 'This field is required'
+      });
+    });
+  });
+
   describe('has a validate function that', function () {
+    it('should throw if called directly', function () {
+      assert.throws(function () {
+        kay.validate('foo');
+      });
+    });
+
     it('calls it with the list of errors when given a callback', function () {
       var returnValue = 'hey there!';
       var stub = sinon.stub().returns(returnValue);

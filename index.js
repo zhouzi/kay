@@ -121,10 +121,12 @@ function pattern (value, regex) {
 }
 
 function validate (value, callback) {
-  var validators = this.validators || [];
+  if (this.validators == null) {
+    throw new Error('validate must be chained');
+  }
 
   var errors =
-    validators
+    this.validators
       .reduce(function (result, validator) {
         var args = [value].concat(validator.args);
         var isValid = validator.fn.apply(null, args);
@@ -134,7 +136,7 @@ function validate (value, callback) {
         }
 
         result.$invalid = true;
-        result[validator.name] = true;
+        result[validator.name] = validator.$message || true;
         return result;
       }, {});
 
@@ -147,6 +149,15 @@ function validate (value, callback) {
 
 function defaultValue (value) {
   return assign({}, this, { $default: value });
+}
+
+function message (msg) {
+  if (this.validators == null) {
+    throw new Error('message must be chained');
+  }
+
+  this.validators[this.validators.length - 1].$message = msg;
+  return this;
 }
 
 function chain (validator) {
@@ -223,7 +234,6 @@ function schema (obj) {
 }
 
 module.exports = {
-  validate: validate,
   schema: schema,
   defaultValue: defaultValue,
 
@@ -238,5 +248,10 @@ module.exports = {
   maxlength: chain(maxlength),
   min: chain(min),
   max: chain(max),
-  pattern: chain(pattern)
+  pattern: chain(pattern),
+
+  // those functions are exported to be chainable
+  // but must not be called first
+  validate: validate,
+  message: message
 };
