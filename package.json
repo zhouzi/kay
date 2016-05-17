@@ -1,7 +1,7 @@
 {
   "name": "kay",
   "version": "0.0.0",
-  "description": "",
+  "description": "User-centered validation library.",
   "main": "index.js",
   "files": [
     "index.js",
