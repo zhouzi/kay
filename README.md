@@ -304,7 +304,7 @@ email.validate('john@gmail.com');
 
 ### kay.message(msg)
 
-Define a message from the previously called constraint.
+Define a message for the previously added constraint.
 This msg will be used instead of "true" in the error map.
 Note: there's no restriction to what msg can be, as long as it can be stored in an object.
 
