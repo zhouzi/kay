@@ -57,7 +57,7 @@ function required (value) {
     return false;
   }
 
-  if (typeof value.length == 'number' && value.length == 0) {
+  if (number(value.length) == true && value.length == 0) {
     return false;
   }
 
@@ -210,10 +210,9 @@ function schema (obj) {
       }
 
       var errors = obj[prop].validate(value[prop]);
-      var isValid = Object.keys(errors).length == 0;
       var isEmpty = required(value[prop]) == false;
 
-      if (isValid && !isEmpty) {
+      if (!errors.$invalid && !isEmpty) {
         result[prop] = value[prop];
       } else if (obj[prop].hasOwnProperty('$default')) {
         result[prop] = obj[prop].$default;
