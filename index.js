@@ -175,7 +175,7 @@ function chain (validator) {
 }
 
 function schema (obj) {
-  function validate (value) {
+  function validate (value, callback) {
     var result = {};
 
     for (var prop in obj) {
@@ -190,7 +190,11 @@ function schema (obj) {
       }
     }
 
-    return result
+    if (type(callback) == '[object Function]') {
+      return callback(result);
+    }
+
+    return result;
   }
 
   function values (value, callback) {

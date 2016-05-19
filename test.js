@@ -296,6 +296,27 @@ describe('kay', function () {
 
         assert.deepEqual(schema.validate({ name: 'John', age: 25, phone: '01234' }), { name: {}, age: {} });
       });
+
+      it('should call callback with the error map', function () {
+        var stub = sinon.stub();
+        var schema = kay.schema({
+          name: kay.string().required(),
+          age: kay.number()
+        });
+
+        schema.validate({}, stub);
+        assert.equal(stub.callCount, 1);
+        assert.deepEqual(stub.lastCall.args, [
+          {
+            $invalid: true,
+            name: {
+              $invalid: true,
+              required: true
+            },
+            age: {}
+          }
+        ])
+      });
     });
 
     describe('return a values function that', function () {

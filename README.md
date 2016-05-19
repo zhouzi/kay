@@ -359,7 +359,7 @@ var user = kay.schema({
 });
 ```
 
-#### schema.validate(value)
+#### schema.validate(value, [callback])
 
 Equivalent of kay.validate but for schemas.
 
