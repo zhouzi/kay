@@ -5,115 +5,119 @@ function type (obj) {
 }
 
 function string (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object String]';
+  return type(value) == '[object String]';
 }
 
 function number (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object Number]';
+  return type(value) == '[object Number]';
 }
 
 function func (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object Function]';
+  return type(value) == '[object Function]';
 }
 
 function object (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object Object]';
+  return type(value) == '[object Object]';
 }
 
 function array (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object Array]';
+  return type(value) == '[object Array]';
 }
 
 function bool (value) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  return type(value) === '[object Bool]';
+  return type(value) == '[object Bool]';
+}
+
+function isEmpty (value) {
+  if (value == null) {
+    return true;
+  }
+
+  if (type(value.length) == '[object Number]' && value.length == 0) {
+    return true;
+  }
+
+  return false;
 }
 
 function required (value) {
-  if (value == null) {
-    return false;
-  }
-
-  if (number(value.length) == true && value.length == 0) {
-    return false;
-  }
-
-  return true;
+  return isEmpty(value) == false;
 }
 
 function minlength (value, minimum) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  if (number(value.length) == false) {
-    return false;
+  if (type(value.length) == '[object Number]') {
+    return value.length >= minimum;
   }
 
-  return value.length >= minimum;
+  return false;
 }
 
 function maxlength (value, maximum) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  if (number(value.length) == false) {
-    return false;
+  if (type(value.length) == '[object Number]') {
+    return value.length <= maximum;
   }
 
-  return value.length <= maximum;
+  return false;
 }
 
 function min (value, minimum) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  if (number(value) == false) {
-    return false;
+  if (type(value) == '[object Number]') {
+    return value >= minimum;
   }
 
-  return value >= minimum;
+  return false;
 }
 
 function max (value, maximum) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
-  if (number(value) == false) {
-    return false;
+  if (type(value) == '[object Number]') {
+    return value <= maximum;
   }
 
-  return value <= maximum;
+  return false;
 }
 
 function pattern (value, regex) {
-  if (required(value) == false) {
+  if (isEmpty(value)) {
     return true;
   }
 
@@ -214,9 +218,8 @@ function schema (obj) {
       }
 
       var errors = obj[prop].validate(value[prop]);
-      var isEmpty = required(value[prop]) == false;
 
-      if (!errors.$invalid && !isEmpty) {
+      if (!errors.$invalid && !isEmpty(value[prop])) {
         result[prop] = value[prop];
       } else if (obj[prop].hasOwnProperty('$default')) {
         result[prop] = obj[prop].$default;
