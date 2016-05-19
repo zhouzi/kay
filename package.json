@@ -1,12 +1,25 @@
 {
-  "name": "kay",
+  "name": "kkay",
   "version": "0.0.0",
   "description": "User-centered validation library.",
+  "keywords": [
+    "validation",
+    "simple",
+    "client-side"
+  ],
   "main": "index.js",
   "files": [
     "index.js",
     "package.json"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zhouzi/kay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Zhouzi/kay/issues"
+  },
+  "homepage": "https://github.com/Zhouzi/kay",
   "scripts": {
     "test": "mocha test.js"
   },

@@ -9,7 +9,7 @@ User-centered validation library.
 
 ## Installation
 
-* *Coming soon*
+* `npm instal kkay --save`
 
 ## Example
 
