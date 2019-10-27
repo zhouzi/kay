@@ -1,6 +1,7 @@
 ⚠️ Although kay was an interesting experiment, I do not recommend using it. There is already a myriad of feature complete schema validation library out there. Have a look at [ajv](https://github.com/epoberezkin/ajv) for example. ⚠️
 
 <details>
+
 # kay
 
 User-centered validation library.
@@ -419,4 +420,5 @@ user.values({
 //   lastname: 'Doe'
 // }
 ```
+
 </details>
